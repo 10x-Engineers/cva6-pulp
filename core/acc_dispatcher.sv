@@ -83,7 +83,7 @@ module acc_dispatcher import ariane_pkg::*; import riscv::*; (
   assign acc_ready_o = acc_insn_queue_usage < (InstructionQueueDepth-1);
 
   // Flush undispatched accelerator instructions.
-  assign acc_flush_undisp_o = flush_i;
+  assign acc_flush_undisp_o = flush_i || acc_resp_i.error;
 
   /**********************************
    *  Non-speculative instructions  *
@@ -136,7 +136,7 @@ module acc_dispatcher import ariane_pkg::*; import riscv::*; (
   ) i_accelerator_req_register (
     .clk_i     (clk_i          ),
     .rst_ni    (rst_ni         ),
-    .clr_i     (1'b0           ),
+    .clr_i     (acc_resp_i.error),
     .testmode_i(1'b0           ),
     .data_i    (acc_req        ),
     .valid_i   (acc_req_valid  ),
