@@ -60,6 +60,14 @@ module cva6 import ariane_pkg::*; #(
   input  logic [63:0]                  inval_addr_i,
   input  logic                         inval_valid_i,
   output logic                         inval_ready_o,
+  // ARA-MMU Interface
+  input exception_t                    ara_misaligned_ex_i,
+  input logic                          ara_mmu_req_i,
+  input  logic [riscv::VLEN-1:0]       ara_vaddr_i,
+  input  logic                         ara_is_store_i,
+  output logic                         ara_mmu_valid_o,
+  output logic [riscv::PLEN-1:0]       ara_paddr_o,
+  output exception_t                   ara_exception_o,
 `endif
 `ifdef FIRESIM_TRACE
   // firesim trace port
@@ -608,6 +616,13 @@ module cva6 import ariane_pkg::*; #(
     // PMP
     .pmpcfg_i               ( pmpcfg                      ),
     .pmpaddr_i              ( pmpaddr                     ),
+    .ara_misaligned_ex_i,
+    .ara_mmu_req_i,
+    .ara_vaddr_i,
+    .ara_is_store_i,
+    .ara_mmu_valid_o,
+    .ara_paddr_o,
+    .ara_exception_o,
     //RVFI
     .lsu_addr_o             ( lsu_addr                    ),
     .lsu_rmask_o            ( lsu_rmask                   ),

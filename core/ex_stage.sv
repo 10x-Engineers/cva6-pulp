@@ -109,6 +109,15 @@ module ex_stage import ariane_pkg::*; #(
     output riscv::xlen_t                           acc_result_o,
     output logic                                   acc_valid_o,
     output exception_t                             acc_exception_o,
+    // ARA's Interface
+    input exception_t                       ara_misaligned_ex_i,
+    input logic                             ara_mmu_req_i,
+    input  logic [riscv::VLEN-1:0]          ara_vaddr_i,
+    input  logic                            ara_is_store_i,
+
+    output logic                            ara_mmu_valid_o,
+    output logic [riscv::PLEN-1:0]          ara_paddr_o,
+    output exception_t                      ara_exception_o,
     // Memory Management
     input  logic                                   enable_translation_i,
     input  logic                                   en_ld_st_translation_i,
@@ -356,10 +365,17 @@ module ex_stage import ariane_pkg::*; #(
         .amo_resp_i,
         .pmpcfg_i,
         .pmpaddr_i,
+        .ara_misaligned_ex_i,
+        .ara_mmu_req_i,
+        .ara_vaddr_i,
+        .ara_is_store_i,
+        .ara_mmu_valid_o,
+        .ara_paddr_o,
+        .ara_exception_o,
         .lsu_addr_o,
         .lsu_rmask_o,
         .lsu_wmask_o,
-        .lsu_addr_trans_id_o
+        .lsu_addr_trans_id_o   
     );
 
     if (CVXIF_PRESENT) begin : gen_cvxif

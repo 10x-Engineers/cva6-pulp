@@ -44,6 +44,15 @@ module mmu import ariane_pkg::*; #(
     output logic                            lsu_valid_o,      // translation is valid
     output logic [riscv::PLEN-1:0]          lsu_paddr_o,      // translated address
     output exception_t                      lsu_exception_o,  // address translation threw an exception
+    // ARA's Interface
+    input exception_t                       ara_misaligned_ex_i,
+    input logic                             ara_mmu_req_i,
+    input  logic [riscv::VLEN-1:0]          ara_vaddr_i,
+    input  logic                            ara_is_store_i,
+
+    output logic                            ara_mmu_valid_o,
+    output logic [riscv::PLEN-1:0]          ara_paddr_o,
+    output exception_t                      ara_exception_o,
     // General control signals
     input riscv::priv_lvl_t                 priv_lvl_i,
     input riscv::priv_lvl_t                 ld_st_priv_lvl_i,
@@ -89,11 +98,19 @@ module mmu import ariane_pkg::*; #(
     logic        dtlb_is_1G;
     logic        dtlb_lu_hit;
 
+    //ARA Ariane's Mux signals
+    logic [riscv::VLEN-1:0] vaddr;
+    logic                   ara_mmu_req_n, ara_mmu_req_q;
+    logic                   lsu_is_store;
+    exception_t             misaligned_ex;
+
 
     // Assignments
     assign itlb_lu_access = icache_areq_i.fetch_req;
-    assign dtlb_lu_access = lsu_req_i;
-
+    assign dtlb_lu_access = lsu_req_i || ara_mmu_req_i;
+    assign misaligned_ex  = ara_mmu_req_i ? ara_misaligned_ex_i : misaligned_ex_i;
+    assign vaddr          = ara_mmu_req_i ? ara_vaddr_i : lsu_vaddr_i;
+    assign lsu_is_store   = ara_mmu_req_i ? ara_is_store_i : lsu_is_store_i;
 
     tlb #(
         .TLB_ENTRIES      ( INSTR_TLB_ENTRIES          ),
@@ -131,7 +148,7 @@ module mmu import ariane_pkg::*; #(
         .lu_asid_i        ( asid_i                      ),
 	      .asid_to_be_flushed_i  ( asid_to_be_flushed_i   ),
 	      .vaddr_to_be_flushed_i ( vaddr_to_be_flushed_i  ),
-        .lu_vaddr_i       ( lsu_vaddr_i                 ),
+        .lu_vaddr_i       ( vaddr                 ),
         .lu_content_o     ( dtlb_content                ),
 
         .lu_is_2M_o       ( dtlb_is_2M                  ),
@@ -162,7 +179,7 @@ module mmu import ariane_pkg::*; #(
 
         .dtlb_access_i          ( dtlb_lu_access        ),
         .dtlb_hit_i             ( dtlb_lu_hit           ),
-        .dtlb_vaddr_i           ( lsu_vaddr_i           ),
+        .dtlb_vaddr_i           ( vaddr           ),
 
         .req_port_i             ( req_port_i            ),
         .req_port_o             ( req_port_o            ),
@@ -307,12 +324,13 @@ module mmu import ariane_pkg::*; #(
     // The data interface is simpler and only consists of a request/response interface
     always_comb begin : data_interface
         // save request and DTLB response
-        lsu_vaddr_n           = lsu_vaddr_i;
-        lsu_req_n             = lsu_req_i;
-        misaligned_ex_n       = misaligned_ex_i;
+        lsu_vaddr_n           = vaddr;
+        lsu_req_n             = lsu_req_i || ara_mmu_req_i;
+        misaligned_ex_n       = misaligned_ex;
+        ara_mmu_req_n         = ara_mmu_req_i;
         dtlb_pte_n            = dtlb_content;
         dtlb_hit_n            = dtlb_lu_hit;
-        lsu_is_store_n        = lsu_is_store_i;
+        lsu_is_store_n        = lsu_is_store;
         dtlb_is_2M_n          = dtlb_is_2M;
         dtlb_is_1G_n          = dtlb_is_1G;
 
@@ -323,7 +341,7 @@ module mmu import ariane_pkg::*; #(
         pmp_access_type       = lsu_is_store_q ? riscv::ACCESS_WRITE : riscv::ACCESS_READ;
 
         // mute misaligned exceptions if there is no request otherwise they will throw accidental exceptions
-        misaligned_ex_n.valid = misaligned_ex_i.valid & lsu_req_i;
+        misaligned_ex_n.valid = misaligned_ex.valid & lsu_req_i;
 
         // Check if the User flag is set, then we may only access it in supervisor mode
         // if SUM is enabled
@@ -445,6 +463,7 @@ module mmu import ariane_pkg::*; #(
             lsu_is_store_q   <= '0;
             dtlb_is_2M_q     <= '0;
             dtlb_is_1G_q     <= '0;
+            ara_mmu_req_q    <= '0;
         end else begin
             lsu_vaddr_q      <=  lsu_vaddr_n;
             lsu_req_q        <=  lsu_req_n;
@@ -454,6 +473,7 @@ module mmu import ariane_pkg::*; #(
             lsu_is_store_q   <=  lsu_is_store_n;
             dtlb_is_2M_q     <=  dtlb_is_2M_n;
             dtlb_is_1G_q     <=  dtlb_is_1G_n;
+            ara_mmu_req_q    <=  ara_mmu_req_n;
         end
     end
 endmodule

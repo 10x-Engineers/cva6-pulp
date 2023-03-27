@@ -75,6 +75,15 @@ module load_store_unit import ariane_pkg::*; #(
     // PMP
     input  riscv::pmpcfg_t [15:0]    pmpcfg_i,
     input  logic [15:0][riscv::PLEN-3:0] pmpaddr_i,
+    // ARA's Interface
+    input exception_t                       ara_misaligned_ex_i,
+    input logic                             ara_mmu_req_i,
+    input  logic [riscv::VLEN-1:0]          ara_vaddr_i,
+    input  logic                            ara_is_store_i,
+
+    output logic                            ara_mmu_valid_o,
+    output logic [riscv::PLEN-1:0]          ara_paddr_o,
+    output exception_t                      ara_exception_o,
 
     //RVFI
     output [riscv::VLEN-1:0]         lsu_addr_o,

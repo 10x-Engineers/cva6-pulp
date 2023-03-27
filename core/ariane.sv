@@ -36,6 +36,14 @@ module ariane import ariane_pkg::*; #(
   // Timer facilities
   input  logic                         time_irq_i,   // timer interrupt in (async)
   input  logic                         debug_req_i,  // debug request (async)
+  // ARA-MMU Interface
+  input exception_t                    ara_misaligned_ex_i,
+  input logic                          ara_mmu_req_i,
+  input  logic [riscv::VLEN-1:0]       ara_vaddr_i,
+  input  logic                         ara_is_store_i,
+  output logic                         ara_mmu_valid_o,
+  output logic [riscv::PLEN-1:0]       ara_paddr_o,
+  output exception_t                   ara_exception_o,
 `ifdef ARIANE_ACCELERATOR_PORT
   // Accelerator request port
   output accelerator_req_t             acc_req_o,
@@ -103,6 +111,13 @@ module ariane import ariane_pkg::*; #(
     .inval_addr_i         ( inval_addr_i              ),
     .inval_valid_i        ( inval_valid_i             ),
     .inval_ready_o        ( inval_ready_o             ),
+    .ara_misaligned_ex_i,
+    .ara_mmu_req_i,
+    .ara_vaddr_i,
+    .ara_is_store_i,
+    .ara_mmu_valid_o,
+    .ara_paddr_o,
+    .ara_exception_o,
 `endif
 `ifdef FIRESIME_TRACE
     .trace_o              ( trace_o                   ),
