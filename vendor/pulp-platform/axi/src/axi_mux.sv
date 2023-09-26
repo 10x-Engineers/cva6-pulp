@@ -250,7 +250,7 @@ module axi_mux #(
       .full_o    ( w_fifo_full                               ),
       .empty_o   ( w_fifo_empty                              ),
       .usage_o   (                                           ),
-      .data_i    ( mst_aw_chan.id[SlvAxiIDWidth+:MstIdxBits] ),
+      .data_i    ( mst_aw_chan.id[(SlvAxiIDWidth-1)+:MstIdxBits] ),
       .push_i    ( w_fifo_push                               ),
       .data_o    ( w_fifo_data                               ),
       .pop_i     ( w_fifo_pop                                )
@@ -310,7 +310,7 @@ module axi_mux #(
     // replicate B channels
     assign slv_b_chans  = {NoSlvPorts{mst_b_chan}};
     // control B channel handshake
-    assign switch_b_id  = mst_b_chan.id[SlvAxiIDWidth+:MstIdxBits];
+    assign switch_b_id  = mst_b_chan.id[(SlvAxiIDWidth-1)+:MstIdxBits];
     assign slv_b_valids = (mst_b_valid) ? (1 << switch_b_id) : '0;
 
     spill_register #(
@@ -369,7 +369,7 @@ module axi_mux #(
     // replicate R channels
     assign slv_r_chans  = {NoSlvPorts{mst_r_chan}};
     // R channel handshake control
-    assign switch_r_id  = mst_r_chan.id[SlvAxiIDWidth+:MstIdxBits];
+    assign switch_r_id  = mst_r_chan.id[(SlvAxiIDWidth-1)+:MstIdxBits];
     assign slv_r_valids = (mst_r_valid) ? (1 << switch_r_id) : '0;
 
     spill_register #(

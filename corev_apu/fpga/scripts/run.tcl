@@ -41,7 +41,10 @@ read_ip { \
 set_property include_dirs { "src/axi_sd_bridge/include" "../../vendor/pulp-platform/common_cells/include" "../../vendor/pulp-platform/axi/include" "../register_interface/include"} [current_fileset]
 
 source scripts/add_sources.tcl
-
+source scripts/ara_sources.tcl
+read_verilog -sv {/home/yazan/Music/ara_cva6_synth/cva6-pulp/corev_apu/ara/hardware/src/lane/lane_sequencer.sv}
+read_verilog -sv {/home/yazan/Music/syn_exist_cva6/cva6-pulp/corev_apu/ara/hardware/src/lane/lane.sv}
+read_verilog -sv {/home/yazan/Music/syn_exist_cva6/cva6-pulp/vendor/pulp-platform/common_cells/src/fall_through_register.sv}
 set_property top ${project}_xilinx [current_fileset]
 
 if {$::env(BOARD) eq "genesys2"} {

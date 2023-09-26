@@ -237,7 +237,14 @@ module acc_dispatcher import ariane_pkg::*; import riscv::*; (
         rs2     : acc_insn_queue_o.operand_b,
         frm     : fpnew_pkg::roundmode_e'(fcsr_frm_i),
         trans_id: acc_insn_queue_o.trans_id,
-        default : '0
+        req_valid: 0,
+        resp_ready: 0,
+        store_pending: 0,
+        acc_cons_en: 0,
+        inval_ready: 0,
+        mmu_valid: 0,
+        paddr: '0,
+        exception: '0
       };
       // Wait until the instruction is no longer speculative.
       acc_req_valid      = insn_ready_q[acc_insn_queue_o.trans_id] ||

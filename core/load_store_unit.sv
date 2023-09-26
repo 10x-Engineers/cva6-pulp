@@ -183,20 +183,20 @@ module load_store_unit import ariane_pkg::*; #(
     assign mmu_translation_req = translation_req | x_mmu_req_i;
     always_comb begin
         if(is_cvx_req)begin
-            assign x_mmu_valid_o        = mmu_translation_valid;
-            assign x_paddr_o            = mmu_paddr_rr;
-            assign x_exception_o        = mmu_exception_rr;
-            assign translation_valid    = '0;
-            assign mmu_paddr            = '0;
-            assign mmu_exception        = '0;
+            x_mmu_valid_o        = mmu_translation_valid;
+            x_paddr_o            = mmu_paddr_rr;
+            x_exception_o        = mmu_exception_rr;
+            translation_valid    = '0;
+            mmu_paddr            = '0;
+            mmu_exception        = '0;
         end
         else begin
-            assign x_mmu_valid_o        = '0;
-            assign x_paddr_o            = '0;
-            assign x_exception_o        = '0;
-            assign translation_valid    = mmu_translation_valid;
-            assign mmu_paddr            = mmu_paddr_rr;
-            assign mmu_exception        = mmu_exception_rr;
+            x_mmu_valid_o        = '0;
+            x_paddr_o            = '0;
+            x_exception_o        = '0;
+            translation_valid    = mmu_translation_valid;
+            mmu_paddr            = mmu_paddr_rr;
+            mmu_exception        = mmu_exception_rr;
         end
     end
 

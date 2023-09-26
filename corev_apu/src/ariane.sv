@@ -15,7 +15,7 @@
 
 module ariane import ariane_pkg::*; import ara_pkg::*;#(
   // RVV Parameters
-  parameter int unsigned NrLanes                = 2,                               // Number of parallel vector lanes.
+  parameter int unsigned NrLanes                = 1,                               // Number of parallel vector lanes.
   // Support for floating-point data types
   parameter fpu_support_e FPUSupport            = FPUSupportHalfSingleDouble,
   // External support for vfrec7, vfrsqrt7

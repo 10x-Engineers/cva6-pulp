@@ -87,7 +87,7 @@ endif
 # target takes one of the following cva6 hardware configuration:
 # cv64a6_imafdc_sv39, cv32a6_imac_sv0, cv32a6_imac_sv32, cv32a6_imafc_sv32, cv32a6_ima_sv32_fpga
 # Changing the default target to cv32a60x for Step1 verification
-target     ?= cv64a6_imafdc_sv39
+target     ?= cv64a6_imadfcv_sv39_polara
 ifndef TARGET_CFG
 	export TARGET_CFG = $(target)
 endif
@@ -98,8 +98,51 @@ ariane_pkg := \
               corev_apu/register_interface/src/reg_intf.sv           \
               corev_apu/tb/ariane_soc_pkg.sv                         \
               corev_apu/riscv-dbg/src/dm_pkg.sv                      \
-              corev_apu/tb/ariane_axi_soc_pkg.sv
+              corev_apu/tb/ariane_axi_soc_pkg.sv		     \
+	      core/include/config_pkg.sv
+
 ariane_pkg := $(addprefix $(root-dir), $(ariane_pkg))
+
+ara_sources := \
+              corev_apu/ara/hardware/src/ara.sv                         \
+              corev_apu/ara/hardware/src/ara_dispatcher.sv              \
+              corev_apu/ara/hardware/src/ara_sequencer.sv               \
+              corev_apu/ara/hardware/src/ctrl_registers.sv              \
+              corev_apu/ara/hardware/src/axi_inval_filter.sv            \
+              corev_apu/ara/hardware/src/vlsu/addrgen.sv                \
+              corev_apu/ara/hardware/src/vlsu/vldu.sv                   \
+              corev_apu/ara/hardware/src/vlsu/vlsu.sv                   \
+              corev_apu/ara/hardware/src/vlsu/vstu.sv                   \
+              corev_apu/ara/hardware/src/sldu/p2_stride_gen.sv          \
+              corev_apu/ara/hardware/src/sldu/sldu.sv                   \
+              corev_apu/ara/hardware/src/sldu/sldu_op_dp.sv             \
+              corev_apu/ara/hardware/src/masku/masku.sv                 \
+              corev_apu/ara/hardware/src/lane/lane.sv                   \
+              corev_apu/ara/hardware/src/lane/fixed_p_rounding.sv       \
+              corev_apu/ara/hardware/src/lane/lane_sequencer.sv         \
+              corev_apu/ara/hardware/src/lane/operand_queue.sv          \
+              corev_apu/ara/hardware/src/lane/operand_queues_stage.sv   \
+              corev_apu/ara/hardware/src/lane/operand_requester.sv      \
+              corev_apu/ara/hardware/src/lane/power_gating_generic.sv   \
+              corev_apu/ara/hardware/src/lane/simd_alu.sv               \
+              corev_apu/ara/hardware/src/lane/simd_div.sv               \
+              corev_apu/ara/hardware/src/lane/simd_mul.sv               \
+              corev_apu/ara/hardware/src/lane/valu.sv                   \
+              corev_apu/ara/hardware/src/lane/vector_fus_stage.sv       \
+              corev_apu/ara/hardware/src/lane/vector_regfile.sv         \
+              corev_apu/ara/hardware/src/lane/vmfpu.sv                  \
+              corev_apu/ara/hardware/include/ara_pkg.sv                 \
+              corev_apu/ara/hardware/include/rvv_pkg.sv                 \
+              vendor/pulp-platform/axi/src/axi_dw_converter.sv          \
+              vendor/pulp-platform/common_cells/src/stream_xbar.sv      \
+              vendor/pulp-platform/tech_cells_generic/src/rtl/tc_sram.sv \
+              vendor/pulp-platform/common_cells/src/fall_through_register.sv \
+	          core/cva6_accel_first_pass_decoder.sv \
+			  vendor/pulp-platform/axi/src/axi_dw_downsizer.sv \
+			  vendor/pulp-platform/common_cells/src/onehot_to_bin.sv \
+			  vendor/pulp-platform/common_cells/src/id_queue.sv
+
+ara_sources := $(addprefix $(root-dir), $(ara_sources))
 
 # Test packages
 test_pkg := $(wildcard tb/test/*/*sequence_pkg.sv*) \
@@ -660,6 +703,7 @@ fpga: $(ariane_pkg) $(src) $(fpga_src) $(uart_src) $(src_flist)
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(src_flist))}		>> corev_apu/fpga/scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(src))} 	   >> corev_apu/fpga/scripts/add_sources.tcl
 	@echo read_verilog -sv {$(fpga_src)}   >> corev_apu/fpga/scripts/add_sources.tcl
+	@echo read_verilog -sv {$(ara_sources)} > corev_apu/fpga/scripts/ara_sources.tcl
 	@echo "[FPGA] Generate Bitstream"
 	cd corev_apu/fpga && make BOARD=$(BOARD) XILINX_PART=$(XILINX_PART) XILINX_BOARD=$(XILINX_BOARD) CLK_PERIOD_NS=$(CLK_PERIOD_NS)
 
