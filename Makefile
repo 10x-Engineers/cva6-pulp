@@ -134,6 +134,9 @@ endif
 
 # this list contains the standalone components
 src :=  core/include/$(target)_config_pkg.sv                                         \
+		ara/hardware/include/rvv_pkg.sv												\
+		ara/hardware/include/ara_pkg.sv												\
+		ara/hardware/include/ara/ara.svh												\
         corev_apu/src/ariane.sv                                                      \
         $(wildcard corev_apu/bootrom/*.sv)                                           \
         $(wildcard corev_apu/clint/*.sv)                                             \
@@ -168,6 +171,38 @@ src :=  core/include/$(target)_config_pkg.sv                                    
         vendor/pulp-platform/axi/src/axi_atop_filter.sv                              \
         vendor/pulp-platform/axi/src/axi_err_slv.sv                                  \
         vendor/pulp-platform/axi/src/axi_mux.sv                                      \
+		vendor/pulp-platform/axi/src/axi_dw_converter.sv                             \
+		ara/hardware/src/axi_to_mem.sv												\
+		ara/hardware/src/ctrl_registers.sv											\
+		ara/hardware/src/cva6_accel_first_pass_decoder.sv							\
+		ara/hardware/src/ara_dispatcher.sv											\
+		ara/hardware/src/ara_sequencer.sv											\
+		ara/hardware/src/axi_inval_filter.sv										\
+		ara/hardware/src/lane/lane_sequencer.sv										\
+		ara/hardware/src/lane/operand_queue.sv										\
+		ara/hardware/src/lane/operand_requester.sv									\
+		ara/hardware/src/lane/simd_alu.sv											\
+		ara/hardware/src/lane/simd_div.sv											\
+		ara/hardware/src/lane/simd_mul.sv											\
+		ara/hardware/src/lane/vector_regfile.sv										\
+		ara/hardware/src/lane/power_gating_generic.sv								\
+		ara/hardware/src/masku/masku.sv												\
+		ara/hardware/src/sldu/p2_stride_gen.sv										\
+		ara/hardware/src/sldu/sldu_op_dp.sv											\
+		ara/hardware/src/sldu/sldu.sv												\
+		ara/hardware/src/vlsu/addrgen.sv											\
+		ara/hardware/src/vlsu/vldu.sv											\
+		ara/hardware/src/vlsu/vstu.sv											\
+		ara/hardware/src/vlsu/vstu.sv												\
+		ara/hardware/src/lane/operand_queues_stage.sv								\
+		ara/hardware/src/lane/valu.sv												\
+		ara/hardware/src/lane/vmfpu.sv												\
+		ara/hardware/src/lane/fixed_p_rounding.sv									\
+		ara/hardware/src/vlsu/vlsu.sv												\
+		ara/hardware/src/lane/vector_fus_stage.sv									\
+		ara/hardware/src/lane/lane.sv												\
+		ara/hardware/src/ara.sv														\
+		ara/hardware/src/accel_dispatcher_ideal.sv									\
         vendor/pulp-platform/axi/src/axi_demux.sv                                    \
         vendor/pulp-platform/axi/src/axi_xbar.sv                                     \
         vendor/pulp-platform/common_cells/src/cdc_2phase.sv                          \
@@ -219,7 +254,7 @@ riscv-fp-tests            := $(shell xargs printf '\n%s' < $(riscv-fp-tests-list
 riscv-benchmarks          := $(shell xargs printf '\n%s' < $(riscv-benchmarks-list) | cut -b 1-)
 
 # Search here for include files (e.g.: non-standalone components)
-incdir := vendor/pulp-platform/common_cells/include/ vendor/pulp-platform/axi/include/ corev_apu/register_interface/include/
+incdir := vendor/pulp-platform/common_cells/include/ vendor/pulp-platform/axi/include/ corev_apu/register_interface/include/ ara/hardware/include/
 
 # Compile and sim flags
 compile_flag     += +cover=bcfst+/dut -incr -64 -nologo -quiet -suppress 13262 -permissive -svinputport=compat +define+$(defines)
@@ -522,7 +557,7 @@ xrun-check-benchmarks:
 xrun-ci: xrun-asm-tests xrun-amo-tests xrun-mul-tests xrun-fp-tests xrun-benchmarks
 
 # verilator-specific
-verilate_command := $(verilator) verilator_config.vlt                                                            \
+verilate_command := $(verilator) verilator_config.vlt  --no-timing                                                            \
                     -f core/Flist.cva6                                                                           \
                     $(filter-out %.vhd, $(ariane_pkg))                                                           \
                     $(filter-out core/fpu_wrap.sv, $(filter-out %.vhd, $(src)))                                  \
@@ -541,6 +576,17 @@ verilate_command := $(verilator) verilator_config.vlt                           
                     -Wno-UNUSED                                                                                  \
                     -Wno-UNOPTFLAT                                                                               \
                     -Wno-BLKANDNBLK                                                                              \
+		    -Wno-ENUMVALUE                                                                \
+		    -Wno-BLKANDNBLK                                                               \
+ 		 -Wno-CASEINCOMPLETE                                                           \
+ 		 -Wno-CMPCONST                                                                 \
+ 		 -Wno-LATCH                                                                    \
+ 		 -Wno-LITENDIAN                                                                \
+ 		 -Wno-UNOPTFLAT                                                                \
+ 		 -Wno-UNPACKED                                                                 \
+ 		 -Wno-UNSIGNED                                                                 \
+ 		 -Wno-WIDTH                                                                    \
+ 		 -Wno-WIDTHCONCAT                                                              \
                     -Wno-style                                                                                   \
                     $(if ($(PRELOAD)!=""), -DPRELOAD=1,)                                                         \
                     $(if $(PROFILE),--stats --stats-vars --profile-cfuncs,)                                      \

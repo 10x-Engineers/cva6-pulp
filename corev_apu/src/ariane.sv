@@ -13,15 +13,15 @@
 // Description: Ariane Top-level module
 
 
-module ariane import ariane_pkg::*; import ara_pkg::*;#(
+module ariane import ariane_pkg::*;#(
   // RVV Parameters
   parameter int unsigned NrLanes                = 2,                               // Number of parallel vector lanes.
   // Support for floating-point data types
-  parameter fpu_support_e FPUSupport            = FPUSupportHalfSingleDouble,
+  //parameter fpu_support_e FPUSupport            = FPUSupportHalfSingleDouble,
   // External support for vfrec7, vfrsqrt7
-  parameter fpext_support_e FPExtSupport        = FPExtSupportEnable,
+  //parameter fpext_support_e FPExtSupport        = FPExtSupportEnable,
   // Support for fixed-point data types
-  parameter fixpt_support_e FixPtSupport        = FixedPointEnable,
+  //parameter fixpt_support_e FixPtSupport        = FixedPointEnable,
   parameter ariane_pkg::ariane_cfg_t ArianeCfg  = ariane_pkg::ArianeDefaultConfig,
   parameter int unsigned AxiAddrWidth           = ariane_axi::AddrWidth,
   parameter int unsigned AxiDataWidth           = ariane_axi::DataWidth,
@@ -211,9 +211,9 @@ module ariane import ariane_pkg::*; import ara_pkg::*;#(
 
   ara #(
     .NrLanes     (NrLanes         ),
-    .FPUSupport  (FPUSupport      ),
-    .FPExtSupport(FPExtSupport    ),
-    .FixPtSupport(FixPtSupport    ),
+    //.FPUSupport  (FPUSupport      ),
+    //.FPExtSupport(FPExtSupport    ),
+    //.FixPtSupport(FixPtSupport    ),
     .AxiDataWidth(AxiWideDataWidth),
     .AxiAddrWidth(AxiAddrWidth    ),
     .axi_ar_t    (ara_axi_ar_chan_t    ),

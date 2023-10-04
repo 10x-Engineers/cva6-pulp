@@ -6,6 +6,8 @@ filesets:
     files:
       - include/ariane_pkg.sv
       - include/nbdcache_pkg.sv
+      - ../ara/hardware/deps/axi/src/axi_dw_converter.sv
+      - ../ara/hardware/deps/axi/src/axi_mux.sv
       - src/alu.sv
       - src/ariane.sv
       - src/ariane_wrapped.sv
@@ -55,7 +57,7 @@ filesets:
     files:
       - src/util/behav_sram.sv
     file_type : systemVerilogSource
-    
+
 targets:
   verilator:
     default_tool : verilator
