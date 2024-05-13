@@ -57,6 +57,7 @@ ${CVA6_REPO_DIR}/vendor/openhwgroup/cvfpu/src/fpu_div_sqrt_mvp/hdl/preprocess_mv
 
 ${CVA6_REPO_DIR}/core/include/${TARGET_CFG}_config_pkg.sv
 ${CVA6_REPO_DIR}/core/include/riscv_pkg.sv
+${CVA6_REPO_DIR}/ara/hardware/include/rvv_pkg.sv
 ${CVA6_REPO_DIR}/common/local/rvfi/rvfi_pkg.sv
 ${CVA6_REPO_DIR}/core/include/ariane_dm_pkg.sv
 // Note: depends on fpnew_pkg, above
